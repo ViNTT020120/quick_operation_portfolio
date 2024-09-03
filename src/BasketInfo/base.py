@@ -7,7 +7,7 @@ class AbstractETFBasketManager(object):
     related to ETF (Exchange-Traded Fund) baskets. This class establishes a common interface for all subclasses that
     handle ETF basket data, with a focus on retrieving information from an Outlook system.
     """
-    __metaclass__ = ABCMeta
+    _metaclass_ = ABCMeta
 
     def __init__(self):
         pass
@@ -34,7 +34,7 @@ class ETFBasketManager(AbstractETFBasketManager):
     The ETFBasketManager class is a concrete implementation of the AbstractETFBasket class. This class is responsible"
     for managing and retrieving information related to ETF (Exchange-Traded Fund) baskets from the Outlook system.
     """
-    def __init__(self, outlook_client, etf_basket_folder, etf_list):
+    def __init__(self, outlook_client, etf_basket_folder):
         """
         Initialize the ETFBasketManager with an instance of the OutlookClient and the path to the ETF basket folder.
         :param outlook_client: An instance of the OutlookClient class used to interact with the Outlook system.
@@ -42,7 +42,16 @@ class ETFBasketManager(AbstractETFBasketManager):
         """
         self.outlook_client = outlook_client
         self.etf_basket_folder = etf_basket_folder
-        self.etf_list = etf_list
+        self.etf_list = [
+            'E1VFVN30', 'FUESSV50', 'FUESSVFL', 'FUEVFVND', 
+            'FUEVN100', 'FUESSV30', 'FUEMAV30', 'FUEKIV30', 
+            'FUEDCMID', 'FUEKIVFS', 'FUEMAVND', 'FUEKIVND'
+            ]
+        self.fol_check_list = [
+            "AP/Nhà đầu tư nước ngoài\nForeign AP/Investor",
+            "Nhà đầu tư nước ngoài/AP nước ngoài Foreign Investor/Foreign AP",
+            "KIS (*)",
+            ]
 
     def _get_info_for_1_basket(self, ticker):
         """
@@ -66,7 +75,7 @@ class ETFBasketManager(AbstractETFBasketManager):
         """
         pass
 
-    def _load_1_basket_from_excel(self, ticker):
+    def _load_1_basket_from_excel(self, ticker) -> pd.DataFrame:
         """
         Retrieve information about a single ETF basket with the given ticker from an Excel file.
         :param ticker: The ticker symbol of the ETF basket.
@@ -86,8 +95,30 @@ class ETFBasketManager(AbstractETFBasketManager):
 
         return dict_etf_basket_info
     
-    def get_fol_basket(self, ticker):
-        fol_check_list = ['AP', 'KIS', 'Nhà đầu tư nước ngoài']
+    def get_fol_basket(self, ticker) -> list:
+        '''
+        Get list of FOL from ETF basket
+        '''
         basket = self._load_1_basket_from_excel(ticker)
-        basket = basket[basket['Đối tượng áp dụng mã chứng khoán thay thế bằng tiền\nParties can substitute cash for securities'].isin(fol_check_list)]
-        return 
+        fol_df = basket[basket[basket.columns[len(basket.columns)-1]].isin(self.fol_check_list)]
+        return fol_df[fol_df.columns[2]].tolist()
+    
+    def get_nfol_basket(self, ticker) -> list:
+        '''
+        Get list of nFOL from ETF basket
+        '''
+        basket = self._load_1_basket_from_excel(ticker)
+        nfol_df = basket[~basket[basket.columns[len(basket.columns)-1]].isin(self.fol_check_list)]
+        return nfol_df[nfol_df.columns[2]].tolist()
+    
+    def test(self):
+        print('test')
+        ticker = 'FUESSV50'
+        fol = self.get_fol_basket(ticker)
+        nfol = self.get_nfol_basket(ticker)
+        print(f'{ticker}: {nfol}')
+
+outlook_client = None      
+etf_basket_folder = r"C:\Users\18521\Downloads\quick_operation_portfolio\Daily Trading" 
+basket_manager = ETFBasketManager(outlook_client, etf_basket_folder)
+basket_manager.test()
