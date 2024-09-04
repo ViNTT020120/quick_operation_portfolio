@@ -81,8 +81,9 @@ class ETFBasketManager(AbstractETFBasketManager):
         :param ticker: The ticker symbol of the ETF basket.
         :return: The information of the ETF basket.
         """
-        data = pd.read_excel(self.etf_basket_folder + "/Daily_trading_basket_update/" + ticker + '_Import.xlsx')
-        return data
+        df = pd.read_excel(self.etf_basket_folder + "/Daily_trading_basket_update/" + ticker + '_Import.xlsx')
+        df = df[df[df.columns[0]] == ticker]
+        return df
 
     
     def load_all_basket_from_excel(self):
@@ -113,12 +114,12 @@ class ETFBasketManager(AbstractETFBasketManager):
     
     def test(self):
         print('test')
-        ticker = 'FUESSV50'
+        ticker = 'FUEDCMID'
         fol = self.get_fol_basket(ticker)
         nfol = self.get_nfol_basket(ticker)
         print(f'{ticker}: {nfol}')
 
 outlook_client = None      
-etf_basket_folder = r"C:\Users\18521\Downloads\quick_operation_portfolio\Daily Trading" 
+etf_basket_folder = r"C:\Users\vi.nt\Downloads\quick_operation_portfolio\Daily Trading" 
 basket_manager = ETFBasketManager(outlook_client, etf_basket_folder)
 basket_manager.test()
