@@ -34,7 +34,7 @@ class ETFBasketManager(AbstractETFBasketManager):
     The ETFBasketManager class is a concrete implementation of the AbstractETFBasket class. This class is responsible"
     for managing and retrieving information related to ETF (Exchange-Traded Fund) baskets from the Outlook system.
     """
-    def __init__(self, outlook_client, etf_basket_folder):
+    def __init__(self, etf_basket_folder, outlook_client = None):
         """
         Initialize the ETFBasketManager with an instance of the OutlookClient and the path to the ETF basket folder.
         :param outlook_client: An instance of the OutlookClient class used to interact with the Outlook system.
@@ -51,6 +51,8 @@ class ETFBasketManager(AbstractETFBasketManager):
             "AP/Nhà đầu tư nước ngoài\nForeign AP/Investor",
             "Nhà đầu tư nước ngoài/AP nước ngoài Foreign Investor/Foreign AP",
             "KIS (*)",
+            "KIS",
+            "KIS, MAS",
             ]
 
     def _get_info_for_1_basket(self, ticker):
@@ -86,7 +88,7 @@ class ETFBasketManager(AbstractETFBasketManager):
         return df
 
     
-    def load_all_basket_from_excel(self):
+    def load_all_basket_from_excel(self) -> dict:
 
         dict_etf_basket_info = {}
 
@@ -119,7 +121,6 @@ class ETFBasketManager(AbstractETFBasketManager):
         nfol = self.get_nfol_basket(ticker)
         print(f'{ticker}: {nfol}')
 
-outlook_client = None      
 etf_basket_folder = r"C:\Users\vi.nt\Downloads\quick_operation_portfolio\Daily Trading" 
-basket_manager = ETFBasketManager(outlook_client, etf_basket_folder)
+basket_manager = ETFBasketManager(etf_basket_folder)
 basket_manager.test()

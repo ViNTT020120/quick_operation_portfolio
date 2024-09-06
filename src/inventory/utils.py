@@ -7,23 +7,23 @@ import pandas as pd
 
 class AbstractInventoryManager(ABC):
 
-    def __init__(self, username, password, account_number, base_url, saving_path):
+    def __init__(self, username, password, account_number, base_url, inventory_path):
         self.username = username
         self.password = password
         self.account_number = account_number
         self.base_url = base_url
-        self.saving_path = saving_path
+        self.inventory_path = inventory_path
         self.token_file = "techx_token.json"
         self.headers = None
         self.folder_date = date.today().strftime("%Y%m%d")
+        self.create_folder_for_today()
 
     def create_folder_for_today(self):
         """Creates a folder for today's date if it doesn't exist."""
-        folder_path = os.path.join(self.saving_path, self.folder_date)
+        folder_path = os.path.join(self.inventory_path, self.folder_date)
         if not os.path.isdir(folder_path):
             os.makedirs(folder_path)
             print(f'The new folder {self.folder_date} is created!')
-        return folder_path
 
     # @abstractmethod
     # async def _perform_login(self):
@@ -42,7 +42,7 @@ class AbstractInventoryManager(ABC):
         raise NotImplementedError("Should implement _log_in_kis_api")
 
     @abstractmethod
-    def _get_inventory_data(self):
+    def _get_inventory_data_from_api(self):
         """Retrieves the portfolio data from the API."""
         raise NotImplementedError("Should implement _get_inventory_data")
 
@@ -51,17 +51,15 @@ class AbstractInventoryManager(ABC):
         """Processes the raw data into a pandas DataFrame."""
         raise NotImplementedError("Should implement _process_data")
 
-    def _save_data_to_excel(self, data, path):
+    def _save_data_to_excel(self, data):
         """Saves the processed data to an Excel file."""
-        folder_path = self.create_folder_for_today()
-        file_name = os.path.join(folder_path, f"morning_portfolio_{self.folder_date}.xlsx")
-        data.to_excel(file_name, index=False)
-        print(f"Report saved as {file_name}")
+        file_name = f"morning_portfolio_{self.folder_date}.xlsx"
+        data.to_excel(os.path.join(self.inventory_path, file_name), index=False)
 
     async def generate_portfolio_positions(self):
         """Orchestrates the process of generating the daily portfolio current positions."""
         await self._log_in_kis_api()
-        raw_data = await self._get_inventory_data()
+        raw_data = await self._get_inventory_data_from_api()
         processed_data = self._process_data(raw_data)
         self._save_data_to_excel(processed_data)
 
@@ -91,7 +89,7 @@ class InventoryManager(AbstractInventoryManager):
         with open(self.token_file, "w+") as f:
             json.dump(data, f)
 
-    async def _get_inventory_data(self):
+    async def _get_inventory_data_from_api(self) -> dict:
         """Retrieves the portfolio data from the API."""
         data = json.load(open(self.token_file))
         accessToken = data['accessToken']
@@ -110,27 +108,26 @@ class InventoryManager(AbstractInventoryManager):
                          'sellable':'Usable (USABLE)', 
                          'boughtT2':'Due (DUE)', 
                          'boughtT1':'Pend. T+1 Buy (TT1UNSETTLEBUY)'},inplace= True)
+        port_df['create'] = 0
+        port_df['redeem'] = 0
         return port_df
 
-    def _save_data_to_excel(self, data):
-        """Saves the processed data to an Excel file."""
-        file_name = "morning_portfolio_" + self.folder_date + ".xlsx"
-        data.to_excel(self.saving_path + "/" + file_name, index=False)
-
-    def load_inventory_from_excel(self):
+    def _load_inventory_from_excel(self):
         """Loads the inventory data from an Excel file."""
-        file_name = "morning_portfolio_" + self.folder_date + ".xlsx"
-        return pd.read_excel(self.saving_path + "/" + file_name)
+        file_name = f"morning_portfolio_{self.folder_date}.xlsx"
+        return pd.read_excel(os.path.join(self.inventory_path, file_name))
     
 # async def main():
 #     username = 'ECB5693'
 #     password = 'a123456'
 #     account_number = 'ECB5693X5'
 #     base_url = 'https://trading.kisvn.vn/rest/api/v1'
-#     saving_path = "C:/Users/vi.nt/Downloads/Quick Portfolio Operation/DAILY QUICK OPERATION"
+#     inventory_path = "C:/Users/vi.nt/Downloads/Quick Portfolio Operation/DAILY QUICK OPERATION"
 
-#     inventory_manager = InventoryManager(username, password, account_number, base_url, saving_path)
+#     inventory_manager = InventoryManager(username, password, account_number, base_url, inventory_path)
 #     await inventory_manager.generate_portfolio_positions()
+#     df = inventory_manager._load_inventory_from_excel()
+#     print(df)
 
 # if __name__ == "__main__":
 #     import asyncio
