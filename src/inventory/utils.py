@@ -54,7 +54,7 @@ class AbstractInventoryManager(ABC):
     def _save_data_to_excel(self, data):
         """Saves the processed data to an Excel file."""
         file_name = f"morning_portfolio_{self.folder_date}.xlsx"
-        data.to_excel(os.path.join(self.inventory_path, file_name), index=False)
+        data.to_excel(os.path.join(self.inventory_path, self.folder_date, file_name), index=False)
 
     async def generate_portfolio_positions(self):
         """Orchestrates the process of generating the daily portfolio current positions."""
@@ -115,14 +115,14 @@ class InventoryManager(AbstractInventoryManager):
     def _load_inventory_from_excel(self):
         """Loads the inventory data from an Excel file."""
         file_name = f"morning_portfolio_{self.folder_date}.xlsx"
-        return pd.read_excel(os.path.join(self.inventory_path, file_name))
+        return pd.read_excel(os.path.join(self.inventory_path, self.folder_date, file_name))
     
 # async def main():
 #     username = 'ECB5693'
 #     password = 'a123456'
 #     account_number = 'ECB5693X5'
 #     base_url = 'https://trading.kisvn.vn/rest/api/v1'
-#     inventory_path = "C:/Users/vi.nt/Downloads/Quick Portfolio Operation/DAILY QUICK OPERATION"
+#     inventory_path = "C:/Users/vi.nt/Downloads/quick_operation_portfolio/DAILY QUICK OPERATION"
 
 #     inventory_manager = InventoryManager(username, password, account_number, base_url, inventory_path)
 #     await inventory_manager.generate_portfolio_positions()

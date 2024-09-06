@@ -1,1 +1,0 @@
-# This file makes the src/api directory a Python package.

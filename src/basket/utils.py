@@ -121,6 +121,6 @@ class ETFBasketManager(AbstractETFBasketManager):
         nfol = self.get_nfol_basket(ticker)
         print(f'{ticker}: {nfol}')
 
-etf_basket_folder = r"C:\Users\vi.nt\Downloads\quick_operation_portfolio\Daily Trading" 
-basket_manager = ETFBasketManager(etf_basket_folder)
-basket_manager.test()
+# etf_basket_folder = r"C:\Users\vi.nt\Downloads\quick_operation_portfolio\Daily Trading" 
+# basket_manager = ETFBasketManager(etf_basket_folder)
+# basket_manager.test()
