@@ -1,21 +1,29 @@
+from datetime import datetime
+import pandas as pd
+
 class TransactionManager:
-    def __init__(self):
-        self.inventory = {}
+    def __init__(self, path, inventory, basket):
+        """
+        Initialize the transaction manager with the necessary managers.
+        :param inventory_manager: An instance of the InventoryManager class.
+        :param etf_basket_manager: An instance of the ETFBasketManager class.
+        """ 
+        self.path = path
+        self.inventory = inventory
+        self.basket = basket
 
-    def add_to_inventory(self, basket_name, quantity):
-        if basket_name in self.inventory:
-            self.inventory[basket_name] += quantity
-        else:
-            self.inventory[basket_name] = quantity
+    def load_transaction_history(self) -> pd.DataFrame:
+        """
+        Retrieve the transaction history from the transaction log.
+        """
+        df = pd.read_excel(self.path)
+        return df
 
-    def remove_from_inventory(self, basket_name, quantity):
-        if basket_name in self.inventory:
-            if self.inventory[basket_name] >= quantity:
-                self.inventory[basket_name] -= quantity
-            else:
-                print("Insufficient quantity in inventory.")
-        else:
-            print("Basket not found in inventory.")
+    def update_inventory(self, order_type, etf_name, quantity):
+        pass
 
-    def get_inventory(self):
-        return self.inventory
+    def check_inventory(self, order_type, etf_name, quantity):
+        pass
+
+    def max_etf_to_create(self, etf_name) -> int:   
+        pass
