@@ -54,6 +54,7 @@ class TransactionManager:
         '''
         print("Updating inventory T-2...")
         trans = self.transaction
+        # trans = self.ap_activities
         arbs = self.arbitrage
         # arbs = self.shortsell
 
