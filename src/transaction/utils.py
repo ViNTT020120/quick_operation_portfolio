@@ -55,6 +55,7 @@ class TransactionManager:
         print("Updating inventory T-2...")
         trans = self.transaction
         arbs = self.arbitrage
+        # arbs = self.shortsell
 
         t2 = datetime.today() - timedelta(2)
 
